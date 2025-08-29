@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  users-db:
+    image: postgres:latest
+    container_name: users-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: users_orders
+    ports:
+      - "5433:5432"
+
+  payments-db:
+    image: postgres:15
+    container_name: payments-db
+    environment:
+      POSTGRES_USER: pay
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: payments
+    ports:
+      - "5434:5432"
+
+  users-orders-service:
+    build: ./users-orders-service
+    container_name: users-orders-service
+    depends_on:
+      - redis
+      - users-db
+    ports:
+      - "8080:8080"
+
+  payments-service:
+    build: ./payments-service
+    container_name: payments-service
+    depends_on:
+      - redis
+      - payments-db
+    ports:
+      - "8081:8080"
